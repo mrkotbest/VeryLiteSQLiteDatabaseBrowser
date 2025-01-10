@@ -45,9 +45,11 @@ namespace SQLiteApp
                 tbEmail.DataBindings.Add("Text", _bindingSource, "Email");
                 tbPhone.DataBindings.Add("Text", _bindingSource, "Phone");
 
-                mainGrid.Enabled = true;
+                if (mainGrid.Columns["CreatedDate"] != null) mainGrid.Columns["CreatedDate"].Visible = false;
+                if (mainGrid.Columns["ModifiedDate"] != null) mainGrid.Columns["ModifiedDate"].Visible = false;
                 mainGrid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
                 mainGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                mainGrid.Enabled = true;
 
                 foreach (DataGridViewColumn column in mainGrid.Columns)
                     column.Width = (mainGrid.Width / mainGrid.Columns.Count) - 5;
@@ -57,7 +59,7 @@ namespace SQLiteApp
             }
             catch (Exception ex)
             {
-                MessageBox.Show("DataBinding Error: " + ex.Message, "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"DataBinding Error: {ex.Message}", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -92,8 +94,30 @@ namespace SQLiteApp
 		}
 		#endregion
 
-		#region GridFunctions
+		#region Components
         private void mainGrid_SelectionChanged(object sender, EventArgs e) => DisplayPosition();
+
+        private void mainGrid_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                var hitTestInfo = mainGrid.HitTest(e.X, e.Y);
+                if (hitTestInfo.RowIndex >= 0 && mainGrid.SelectedRows.Count > 0 && mainGrid.SelectedRows[0].Index == hitTestInfo.RowIndex)
+                {
+                    contextMenu.Show(mainGrid, e.Location);
+                }
+            }
+        }
+
+        private void contextMenu_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (_bindingSource.Current is DataRowView row)
+            {
+                contextMenu.Items.Clear();
+                contextMenu.Items.Add(new ToolStripStaticItem($"Created Date: {row["CreatedDate"]}"));
+                contextMenu.Items.Add(new ToolStripStaticItem($"Modified Date: {row["ModifiedDate"]}"));
+            }
+        }
 		#endregion
 
 		#region CRUD Operations

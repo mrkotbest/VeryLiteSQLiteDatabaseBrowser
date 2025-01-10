@@ -28,10 +28,11 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.status = new System.Windows.Forms.StatusStrip();
             this.tssPosition = new System.Windows.Forms.ToolStripStatusLabel();
             this.gbOperations = new System.Windows.Forms.GroupBox();
             this.panelOperations = new System.Windows.Forms.TableLayoutPanel();
@@ -62,7 +63,8 @@
             this.panelSearching = new System.Windows.Forms.FlowLayoutPanel();
             this.tbSearch = new System.Windows.Forms.TextBox();
             this.btnSearch = new System.Windows.Forms.Button();
-            this.statusStrip1.SuspendLayout();
+            this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.status.SuspendLayout();
             this.gbOperations.SuspendLayout();
             this.panelOperations.SuspendLayout();
             this.gbGridView.SuspendLayout();
@@ -71,19 +73,19 @@
             this.panelSearching.SuspendLayout();
             this.SuspendLayout();
             // 
-            // statusStrip1
+            // status
             // 
-            this.statusStrip1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.status.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.status.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tssPosition});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 339);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.ManagerRenderMode;
-            this.statusStrip1.Size = new System.Drawing.Size(784, 22);
-            this.statusStrip1.SizingGrip = false;
-            this.statusStrip1.Stretch = false;
-            this.statusStrip1.TabIndex = 0;
-            this.statusStrip1.Text = "\"\"";
+            this.status.Location = new System.Drawing.Point(0, 339);
+            this.status.Name = "status";
+            this.status.RenderMode = System.Windows.Forms.ToolStripRenderMode.ManagerRenderMode;
+            this.status.Size = new System.Drawing.Size(784, 22);
+            this.status.SizingGrip = false;
+            this.status.Stretch = false;
+            this.status.TabIndex = 0;
+            this.status.Text = "\"\"";
             // 
             // tssPosition
             // 
@@ -419,23 +421,23 @@
             this.mainGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.mainGrid.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.mainGrid.BackgroundColor = System.Drawing.Color.White;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.mainGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.mainGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.mainGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.mainGrid.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.mainGrid.DefaultCellStyle = dataGridViewCellStyle4;
             this.mainGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainGrid.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.mainGrid.GridColor = System.Drawing.SystemColors.Control;
@@ -447,6 +449,7 @@
             this.mainGrid.TabIndex = 0;
             this.mainGrid.TabStop = false;
             this.mainGrid.SelectionChanged += new System.EventHandler(this.mainGrid_SelectionChanged);
+            this.mainGrid.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mainGrid_MouseDown);
             // 
             // panelSearching
             // 
@@ -483,6 +486,18 @@
             this.btnSearch.UseVisualStyleBackColor = false;
             this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
             // 
+            // contextMenu
+            // 
+            this.contextMenu.BackColor = System.Drawing.Color.White;
+            this.contextMenu.DropShadowEnabled = false;
+            this.contextMenu.ImeMode = System.Windows.Forms.ImeMode.Disable;
+            this.contextMenu.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            this.contextMenu.Name = "contextMenu";
+            this.contextMenu.ShowImageMargin = false;
+            this.contextMenu.ShowItemToolTips = false;
+            this.contextMenu.Size = new System.Drawing.Size(156, 26);
+            this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenu_Opening);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -491,7 +506,7 @@
             this.ClientSize = new System.Drawing.Size(784, 361);
             this.Controls.Add(this.gbGridView);
             this.Controls.Add(this.gbOperations);
-            this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.status);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(700, 400);
             this.Name = "MainForm";
@@ -499,8 +514,8 @@
             this.Text = "Very Lite SQLite DB Browser";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.Load += new System.EventHandler(this.MainForm_Load);
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
+            this.status.ResumeLayout(false);
+            this.status.PerformLayout();
             this.gbOperations.ResumeLayout(false);
             this.gbOperations.PerformLayout();
             this.panelOperations.ResumeLayout(false);
@@ -516,7 +531,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.StatusStrip statusStrip1;
+		private System.Windows.Forms.StatusStrip status;
 		private System.Windows.Forms.ToolStripStatusLabel tssPosition;
 		private System.Windows.Forms.GroupBox gbOperations;
 		private System.Windows.Forms.Button btnRefresh;
@@ -547,6 +562,7 @@
 		private System.Windows.Forms.Panel panelGrid;
 		private System.Windows.Forms.FlowLayoutPanel panelSearching;
 		private System.Windows.Forms.TableLayoutPanel panelOperations;
-	}
+        private System.Windows.Forms.ContextMenuStrip contextMenu;
+    }
 }
 
