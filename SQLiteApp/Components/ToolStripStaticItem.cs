@@ -15,8 +15,7 @@ namespace SQLiteApp
                 Text,
                 Font,
                 new Rectangle(Point.Empty, Size),
-                Color.Black,
-                TextFormatFlags.VerticalCenter | TextFormatFlags.Left
+                Color.Black
             );
         }
     }

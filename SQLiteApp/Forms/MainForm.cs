@@ -94,7 +94,29 @@ namespace SQLiteApp
 		}
 		#endregion
 
-		#region Components
+		#region ElementsFunctions
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.Z) // Ctrl+Z check
+            {
+                try
+                {
+                    if (UndoManager.CanUndo)
+                    {
+                        UndoManager.Undo();
+                        UpdateDataBinding();
+                    }
+                    else MessageBox.Show("No actions to undo", "Undo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Undo failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            if (e.KeyCode == Keys.Delete) btnDelete_Click(btnDelete, EventArgs.Empty);
+        }
+
         private void mainGrid_SelectionChanged(object sender, EventArgs e) => DisplayPosition();
 
         private void mainGrid_MouseDown(object sender, MouseEventArgs e)
@@ -141,7 +163,7 @@ namespace SQLiteApp
                 try
                 {
                     if (MessageBox.Show($"Delete selected record (#{autoId})?", "SQLite (DELETE)",
-                        MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                         bool result = _dbManager.DeleteEmployee(Convert.ToInt32(autoId));
                         if (result) UpdateDataBinding();
@@ -193,10 +215,8 @@ namespace SQLiteApp
 
 		private void btnSave_Click(object sender, EventArgs e)
 		{
-            if (string.IsNullOrEmpty(tbFirstName.Text.Trim()) ||
-                string.IsNullOrEmpty(tbLastName.Text.Trim()) ||
-                string.IsNullOrEmpty(tbJobTitle.Text.Trim()) ||
-                string.IsNullOrEmpty(tbEmail.Text.Trim()))
+            if (string.IsNullOrEmpty(tbFirstName.Text.Trim()) || string.IsNullOrEmpty(tbLastName.Text.Trim()) ||
+                string.IsNullOrEmpty(tbJobTitle.Text.Trim()) || string.IsNullOrEmpty(tbEmail.Text.Trim()))
             {
                 MessageBox.Show("Fill in empty fields", "Add New Record", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -226,7 +246,7 @@ namespace SQLiteApp
                     employee.AutoId = Convert.ToInt32(autoId);
 
                     if (MessageBox.Show($"Update selected record (#{autoId})?", "SQLite (UPDATE)",
-                        MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                         bool result = _dbManager.UpdateEmployee(employee);
                         if (result) UpdateDataBinding();
