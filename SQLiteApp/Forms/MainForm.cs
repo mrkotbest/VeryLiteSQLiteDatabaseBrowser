@@ -7,117 +7,92 @@ namespace SQLiteApp
     public partial class MainForm : Form
 	{
         private static DatabaseManager _dbManager;
-		private static BindingSource _bindingSource;
+        private DataTable _employeesTable;
 
         public MainForm() => InitializeComponent();
 
 		private void MainForm_Load(object sender, EventArgs e)
 		{
             _dbManager = new DatabaseManager();
-			UpdateDataBinding();
+            InitializeGrid();
         }
 
 		private void MainForm_FormClosed(object sender, FormClosedEventArgs e) => Application.Exit();
 
-        private void UpdateDataBinding(DataTable dataTable = null)
+        private void InitializeGrid()
         {
-            try
+            LoadData();
+
+            mainGrid.AutoGenerateColumns = true;
+            mainGrid.AllowUserToAddRows = true;
+            mainGrid.EditMode = DataGridViewEditMode.EditOnEnter;
+            if (mainGrid.Columns["AutoId"] != null)
             {
-                TextBox tb;
-                foreach (Control control in gbOperations.Controls)
-                {
-                    if (control.GetType() == typeof(TextBox))
-                    {
-                        tb = (TextBox)control;
-                        tb.DataBindings.Clear();
-                        tb.Text = string.Empty;
-                    }
-                }
-
-                if (dataTable == null) dataTable = _dbManager.GetEmployeesDataTable();
-                _bindingSource = new BindingSource() { DataSource = dataTable };
-                mainGrid.DataSource = _bindingSource;
-
-                tbAutoId.DataBindings.Add("Text", _bindingSource, "AutoId");
-                tbFirstName.DataBindings.Add("Text", _bindingSource, "FirstName");
-                tbLastName.DataBindings.Add("Text", _bindingSource, "LastName");
-                tbJobTitle.DataBindings.Add("Text", _bindingSource, "JobTitle");
-                tbEmail.DataBindings.Add("Text", _bindingSource, "Email");
-                tbPhone.DataBindings.Add("Text", _bindingSource, "Phone");
-
-                if (mainGrid.Columns["CreatedDate"] != null) mainGrid.Columns["CreatedDate"].Visible = false;
-                if (mainGrid.Columns["ModifiedDate"] != null) mainGrid.Columns["ModifiedDate"].Visible = false;
-                mainGrid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-                mainGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-                mainGrid.Enabled = true;
-
-                foreach (DataGridViewColumn column in mainGrid.Columns)
-                    column.Width = (mainGrid.Width / mainGrid.Columns.Count) - 5;
-                mainGrid.Columns[0].Width = 40; // AutoId Column
-
-                DisplayPosition();
+                mainGrid.Columns["AutoId"].ReadOnly = true;
+                mainGrid.Columns["AutoId"].Width = 40;
             }
-            catch (Exception ex)
+            if (mainGrid.Columns["CreatedDate"] != null) mainGrid.Columns["CreatedDate"].Visible = false;
+            if (mainGrid.Columns["ModifiedDate"] != null) mainGrid.Columns["ModifiedDate"].Visible = false;
+        }
+
+        private void LoadData(DataTable dataTable = null)
+        {
+            _employeesTable = dataTable ?? _dbManager.GetEmployeesDataTable();
+            mainGrid.DataSource = _employeesTable;
+        }
+
+        private Employee ExtractEmployeeFromRow(DataGridViewRow row, bool isNew, out string validationError)
+        {
+            validationError = null;
+
+            var firstName = row.Cells["FirstName"].Value?.ToString()?.Trim() ?? string.Empty;
+            var lastName = row.Cells["LastName"].Value?.ToString()?.Trim() ?? string.Empty;
+            var jobTitle = row.Cells["JobTitle"].Value?.ToString()?.Trim() ?? string.Empty;
+            var email = row.Cells["Email"].Value?.ToString()?.Trim() ?? string.Empty;
+            var phone = row.Cells["Phone"].Value?.ToString()?.Trim();
+
+            if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(jobTitle) || string.IsNullOrEmpty(email))
             {
-                MessageBox.Show($"DataBinding Error: {ex.Message}", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                validationError = "All required fields (FirstName, LastName, JobTitle, Email) must be filled!";
+                return null;
             }
+
+            var createdDate = isNew ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") : row.Cells["CreatedDate"].Value?.ToString();
+            var modifiedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            var autoId = isNew ? 0 : int.TryParse(row.Cells["AutoId"].Value?.ToString(), out var id) ? id : -1;
+
+            return new Employee(firstName, lastName, jobTitle, email, phone, createdDate, modifiedDate, autoId);
         }
 
         private void DisplayPosition()
         {
-            if (_bindingSource != null) tssPosition.Text = $"Position: {_bindingSource.Position + 1}/{_bindingSource.Count}";
+            if (mainGrid.Rows.Count > 0 && mainGrid.CurrentRow != null)
+            {
+                int currentPosition = mainGrid.CurrentRow.Index + 1;
+                int totalCount = mainGrid.Rows.Count - (mainGrid.AllowUserToAddRows ? 1 : 0);
+                tssPosition.Text = $"Position: {currentPosition}/{totalCount}";
+            }
+            else tssPosition.Text = "Position: 0/0";
         }
 
-		#region Movements
-		private void btnMoveFirst_Click(object sender, EventArgs e)
-		{
-			_bindingSource.MoveFirst();
-			DisplayPosition();
-		}
-
-		private void btnMovePrevious_Click(object sender, EventArgs e)
-		{
-			_bindingSource.MovePrevious();
-			DisplayPosition();
-		}
-
-		private void btnMoveNext_Click(object sender, EventArgs e)
-		{
-			_bindingSource.MoveNext();
-			DisplayPosition();
-		}
-
-		private void btnMoveLast_Click(object sender, EventArgs e)
-		{
-			_bindingSource.MoveLast();
-			DisplayPosition();
-		}
-		#endregion
-
-		#region ElementsFunctions
+		#region FormComponentsEvents
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.Z) // Ctrl+Z check
             {
-                try
+                if (UndoManager.CanUndo)
                 {
-                    if (UndoManager.CanUndo)
-                    {
-                        UndoManager.Undo();
-                        UpdateDataBinding();
-                    }
-                    else MessageBox.Show("No actions to undo", "Undo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    UndoManager.Undo();
+                    LoadData();
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Undo failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                else MessageBox.Show("No actions to undo", "Undo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
-            if (e.KeyCode == Keys.Delete) btnDelete_Click(btnDelete, EventArgs.Empty);
         }
 
-        private void mainGrid_SelectionChanged(object sender, EventArgs e) => DisplayPosition();
+        private void mainGrid_SelectionChanged(object sender, EventArgs e)
+        {
+            DisplayPosition();
+        }
 
         private void mainGrid_MouseDown(object sender, MouseEventArgs e)
         {
@@ -131,173 +106,77 @@ namespace SQLiteApp
             }
         }
 
+        private void mainGrid_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                var row = mainGrid.CurrentRow;
+                if (row != null)
+                {
+                    try
+                    {
+                        bool isNewRow = string.IsNullOrEmpty(row.Cells["AutoId"].Value?.ToString());
+                        var employee = ExtractEmployeeFromRow(row, isNewRow, out var validationError);
+
+                        if (employee == null)
+                        {
+                            MessageBox.Show(validationError, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            mainGrid.CancelEdit();
+                            return;
+                        }
+
+                        if (isNewRow)
+                        {
+                            if (_dbManager.AddEmployee(employee)) MessageBox.Show("New record added successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            else MessageBox.Show("Failed to add new record.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        else
+                        {
+                            if (_dbManager.UpdateEmployee(employee)) MessageBox.Show("Record successfully updated.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            else MessageBox.Show("Failed to update record.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+
+                        mainGrid.EndEdit();
+                        LoadData();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error processing row: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+
+            if (e.KeyCode == Keys.Delete)
+            {
+                e.SuppressKeyPress = true;
+                var row = mainGrid.CurrentRow;
+                if (row != null)
+                {
+                    var autoId = mainGrid.CurrentRow.Cells["AutoId"].Value?.ToString();
+                    if (string.IsNullOrEmpty(autoId)) return;
+
+                    var confirmResult = MessageBox.Show("Are you sure you want to delete this record?", "Confirm deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (confirmResult == DialogResult.Yes) _dbManager.DeleteEmployee(Convert.ToInt32(autoId));
+                    LoadData();
+                }
+            }
+        }
+
         private void contextMenu_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (_bindingSource.Current is DataRowView row)
+            if (mainGrid.CurrentRow is DataGridViewRow row)
             {
                 contextMenu.Items.Clear();
-                contextMenu.Items.Add(new ToolStripStaticItem($"Created Date: {row["CreatedDate"]}"));
-                contextMenu.Items.Add(new ToolStripStaticItem($"Modified Date: {row["ModifiedDate"]}"));
-            }
-        }
-		#endregion
-
-		#region CRUD Operations
-		private void btnDelete_Click(object sender, EventArgs e)
-		{
-            if (mainGrid.SelectedRows.Count > 0)
-            {
-                if (btnAdd.Text == "Cancel") return;
-
-                var autoId = tbAutoId.Text.Trim();
-
-                if (string.IsNullOrEmpty(autoId))
-                {
-                    MessageBox.Show("Select the record", "SQLite (DELETE)", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
-                }
-
-                //var row = mainGrid.SelectedRows[0];
-                //int autoId = Convert.ToInt32(row.Cells["AutoId"].Value);
-
-                try
-                {
-                    if (MessageBox.Show($"Delete selected record (#{autoId})?", "SQLite (DELETE)",
-                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    {
-                        bool result = _dbManager.DeleteEmployee(Convert.ToInt32(autoId));
-                        if (result) UpdateDataBinding();
-                        else MessageBox.Show("Failed to delete", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error deleting employee: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                contextMenu.Items.Add(new ToolStripStaticItem($"Created Date: {row.Cells["CreatedDate"].Value?.ToString()}"));
+                contextMenu.Items.Add(new ToolStripStaticItem($"Modified Date: {row.Cells["ModifiedDate"].Value?.ToString()}"));
             }
         }
 
-		private void btnAdd_Click(object sender, EventArgs e)
-		{
-            try
-            {
-                if (btnAdd.Text == "Add New")
-				{
-					btnAdd.Text = "Cancel";
-					tssPosition.Text = "Position: 0/0";
-					mainGrid.ClearSelection();
-					mainGrid.Enabled = false;
-				}
-				else if (btnAdd.Text == "Cancel")
-				{
-					btnAdd.Text = "Add New";
-					UpdateDataBinding();
-					return;
-				}
-
-                TextBox tb;
-				foreach (Control control in gbOperations.Controls)
-				{
-					if (control.GetType() == typeof(TextBox))
-					{
-						tb = (TextBox)control;
-						tb.DataBindings.Clear();
-						tb.Text = string.Empty;
-						if (tb.Name.Equals("tbFirstName") && tb.CanFocus) tb.Focus();
-					}
-				}
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error adding employee: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-		private void btnSave_Click(object sender, EventArgs e)
-		{
-            if (string.IsNullOrEmpty(tbFirstName.Text.Trim()) || string.IsNullOrEmpty(tbLastName.Text.Trim()) ||
-                string.IsNullOrEmpty(tbJobTitle.Text.Trim()) || string.IsNullOrEmpty(tbEmail.Text.Trim()))
-            {
-                MessageBox.Show("Fill in empty fields", "Add New Record", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            var employee = new Employee
-            {
-                FirstName = tbFirstName.Text,
-                LastName = tbLastName.Text,
-                JobTitle = tbJobTitle.Text,
-                Email = tbEmail.Text,
-                Phone = tbPhone.Text,
-                CreatedDate = btnAdd.Text.Equals("Cancel") ? DateTime.UtcNow.ToString() : ((DataRowView)_bindingSource.Current)["CreatedDate"].ToString(),
-                ModifiedDate = DateTime.UtcNow.ToString()
-            };
-
-            try
-            {
-                if (btnAdd.Text.Equals("Add New"))
-                {
-                    var autoId = tbAutoId.Text.Trim();
-                    if (string.IsNullOrEmpty(autoId))
-                    {
-                        MessageBox.Show("Select the record");
-                        return;
-                    }
-                    employee.AutoId = Convert.ToInt32(autoId);
-
-                    if (MessageBox.Show($"Update selected record (#{autoId})?", "SQLite (UPDATE)",
-                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    {
-                        bool result = _dbManager.UpdateEmployee(employee);
-                        if (result) UpdateDataBinding();
-                        else MessageBox.Show("Failed to update", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-                else if (btnAdd.Text.Equals("Cancel"))
-                {
-                    if (MessageBox.Show("Add new record?", "SQLite (INSERT)",
-                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    {
-                        bool result = _dbManager.AddEmployee(employee);
-                        if (result)
-                        {
-                            UpdateDataBinding();
-                            _bindingSource.MoveLast();
-                            btnAdd.Text = "Add New";
-                        }
-                        else MessageBox.Show("Failed to add", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    else return;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error saving employee: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-		private void btnRefresh_Click(object sender, EventArgs e)
-		{
-            if (btnAdd.Text.Equals("Cancel")) return;
-            UpdateDataBinding();
-        }
-
-		private void btnExit_Click(object sender, EventArgs e) => Application.Exit();
-
-		private void btnSearch_Click(object sender, EventArgs e)
-		{
-            if (btnAdd.Text == "Cancel") return;
-
-            string searchTerm = tbSearch.Text.Trim();
-            try
-            {
-                UpdateDataBinding(string.IsNullOrEmpty(searchTerm) ? null : _dbManager.SearchEmployees(searchTerm));
-                DisplayPosition();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error during search: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+        private void tbSearch_TextChanged(object sender, EventArgs e)
+        {
+            var dataTable = string.IsNullOrEmpty(tbSearch.Text.Trim()) ? null : _dbManager.SearchEmployees(tbSearch.Text.Trim());
+            LoadData(dataTable);
         }
         #endregion
     }

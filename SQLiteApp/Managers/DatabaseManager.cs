@@ -49,51 +49,20 @@ namespace SQLiteApp
                 {
                     if (reader.Read())
                     {
-                        return new Employee
-                        {
-                            AutoId = reader.GetInt32(reader.GetOrdinal("AutoId")),
-                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
-                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            JobTitle = reader.GetString(reader.GetOrdinal("JobTitle")),
-                            Email = reader.GetString(reader.GetOrdinal("Email")),
-                            Phone = reader.IsDBNull(reader.GetOrdinal("Phone")) ? null : reader.GetString(reader.GetOrdinal("Phone")),
-                            CreatedDate = reader.GetString(reader.GetOrdinal("CreatedDate")),
-                            ModifiedDate = reader.GetString(reader.GetOrdinal("ModifiedDate"))
-                        };
+                        var id = reader.GetInt32(reader.GetOrdinal("AutoId"));
+                        var firstName = reader.GetString(reader.GetOrdinal("FirstName"));
+                        var lastName = reader.GetString(reader.GetOrdinal("LastName"));
+                        var jobTitle = reader.GetString(reader.GetOrdinal("JobTitle"));
+                        var email = reader.GetString(reader.GetOrdinal("Email"));
+                        var phone = reader.IsDBNull(reader.GetOrdinal("Phone")) ? null : reader.GetString(reader.GetOrdinal("Phone"));
+                        var createdDate = reader.GetString(reader.GetOrdinal("CreatedDate"));
+                        var modifiedDate = reader.GetString(reader.GetOrdinal("ModifiedDate"));
+                        return new Employee(firstName, lastName, jobTitle, email, phone, createdDate, modifiedDate, id);
                     }
                 }
             }
-
             return null;
         }
-
-        //public List<Employee> GetAllEmployees()
-        //{
-        //    const string query = "SELECT * FROM Employees ORDER BY AutoId ASC";
-        //    var employees = new List<Employee>();
-
-        //    using (var connection = GetConnection())
-        //    using (var command = new SQLiteCommand(query, connection))
-        //    using (var reader = command.ExecuteReader())
-        //    {
-        //        while (reader.Read())
-        //        {
-        //            employees.Add(new Employee
-        //            {
-        //                AutoId = Convert.ToInt32(reader["AutoId"]),
-        //                FirstName = reader["FirstName"].ToString(),
-        //                LastName = reader["LastName"].ToString(),
-        //                JobTitle = reader["JobTitle"].ToString(),
-        //                Email = reader["Email"].ToString(),
-        //                Phone = reader["Phone"].ToString(),
-        //                CreatedDate = reader["CreatedDate"].ToString(),
-        //                ModifiedDate = reader["ModifiedDate"].ToString()
-        //            });
-        //        }
-        //    }
-
-        //    return employees;
-        //}
 
         public bool AddEmployee(Employee employee)
         {
