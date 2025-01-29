@@ -125,12 +125,15 @@
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.mainGrid.DefaultCellStyle = dataGridViewCellStyle2;
             this.mainGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mainGrid.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.mainGrid.Location = new System.Drawing.Point(8, 8);
             this.mainGrid.MultiSelect = false;
             this.mainGrid.Name = "mainGrid";
             this.mainGrid.RowHeadersVisible = false;
+            this.mainGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.mainGrid.Size = new System.Drawing.Size(768, 289);
             this.mainGrid.TabIndex = 0;
+            this.mainGrid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.mainGrid_CellDoubleClick);
             this.mainGrid.SelectionChanged += new System.EventHandler(this.mainGrid_SelectionChanged);
             this.mainGrid.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mainGrid_KeyDown);
             this.mainGrid.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mainGrid_MouseDown);

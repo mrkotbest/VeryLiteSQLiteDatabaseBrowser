@@ -160,7 +160,7 @@ namespace SQLiteApp
 
         public DataTable SearchEmployees(string searchTerm)
         {
-            const string query = "SELECT * FROM Employees WHERE FirstName LIKE @Keyword2 OR LastName LIKE @Keyword2 OR JobTitle LIKE @Keyword2 OR Email = @Keyword1 OR Phone LIKE @Keyword2 ORDER BY AutoId ASC";
+            const string query = "SELECT * FROM Employees WHERE AutoId LIKE @Keyword2 OR FirstName LIKE @Keyword2 OR LastName LIKE @Keyword2 OR JobTitle LIKE @Keyword2 OR Email = @Keyword1 OR Phone LIKE @Keyword2 ORDER BY AutoId ASC";
             var dataTable = new DataTable();
 
             using (var connection = GetConnection())
